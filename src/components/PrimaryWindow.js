@@ -29,8 +29,8 @@ export class PrimaryWindow extends Component {
       }
       return (
         <WindowViewer
-          window={window}
           manifest={manifest}
+          window={window}
         />
       );
     }

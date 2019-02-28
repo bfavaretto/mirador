@@ -365,3 +365,10 @@ export function getSelectedTargetAnnotationResources(state, targetIds, annotatio
       resources: annotation.resources.filter(r => annotationIds && annotationIds.includes(r.id)),
     }));
 }
+
+/** Returns the latest error from the state
+ * @param {object} state
+ */
+export function getLatestError(state) {
+  return state.errors.items[0] && state.errors[state.errors.items[0]];
+}
