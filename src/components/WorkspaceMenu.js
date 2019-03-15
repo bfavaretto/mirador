@@ -166,7 +166,7 @@ export class WorkspaceMenu extends Component {
             <ListItemIcon>
               <ImportIcon />
             </ListItemIcon>
-            <Typography varient="inherit">{t('importWorkspace')}</Typography>
+            <Typography variant="body1">{t('importWorkspace')}</Typography>
           </MenuItem>
         </Menu>
         <WindowList

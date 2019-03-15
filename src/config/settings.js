@@ -116,13 +116,6 @@ export default {
       },
       useNextVariants: true // set so that console deprecation warning is removed
     },
-    overrides: {
-      MuiInput: {
-        input: {
-          backgroundColor: 'LightGray',
-        }
-      }
-    }
   },
   language: 'en',
   availableLanguages: { // All the languages available in the language switcher
