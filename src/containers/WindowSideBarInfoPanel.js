@@ -3,14 +3,17 @@ import { connect } from 'react-redux';
 import { withTranslation } from 'react-i18next';
 import { withStyles } from '@material-ui/core/styles';
 import { withPlugins } from '../extend';
+import * as actions from '../state/actions';
 import {
   getDestructuredMetadata,
   getCanvasLabel,
   getManifestDescription,
   getManifestTitle,
+  getMetadataLocales,
   getSelectedCanvas,
   getWindowManifest,
   getCanvasDescription,
+  getWindowLocale,
 } from '../state/selectors';
 import { WindowSideBarInfoPanel } from '../components/WindowSideBarInfoPanel';
 
@@ -19,16 +22,32 @@ import { WindowSideBarInfoPanel } from '../components/WindowSideBarInfoPanel';
  * @memberof WindowSideBarInfoPanel
  * @private
  */
-const mapStateToProps = (state, { windowId }) => ({
+const mapStateToProps = (state, { id, windowId }) => ({
   canvasLabel: getCanvasLabel(
     getSelectedCanvas(state, windowId),
     state.windows[windowId].canvasIndex,
   ),
   canvasDescription: getCanvasDescription(getSelectedCanvas(state, windowId)),
-  canvasMetadata: getDestructuredMetadata(getSelectedCanvas(state, windowId)),
+  canvasMetadata: getDestructuredMetadata(
+    getSelectedCanvas(state, windowId), state.companionWindows[id].locale,
+  ),
   manifestLabel: getManifestTitle(getWindowManifest(state, windowId)),
   manifestDescription: getManifestDescription(getWindowManifest(state, windowId)),
-  manifestMetadata: getDestructuredMetadata(getWindowManifest(state, windowId).manifestation),
+  manifestMetadata: getDestructuredMetadata(
+    getWindowManifest(state, windowId).manifestation, state.companionWindows[id].locale,
+  ),
+  availableLocales: getMetadataLocales(state, windowId),
+  locale: state.companionWindows[id].locale
+    || getWindowLocale(state, windowId),
+});
+
+/**
+ * mapDispatchToProps - to hook up connect
+ * @memberof CompanionWindow
+ * @private
+ */
+const mapDispatchToProps = (dispatch, { windowId, id }) => ({
+  setLocale: locale => dispatch(actions.updateCompanionWindow(windowId, id, { locale })),
 });
 
 /**
@@ -49,7 +68,7 @@ const styles = theme => ({
 const enhance = compose(
   withTranslation(),
   withStyles(styles),
-  connect(mapStateToProps, null),
+  connect(mapStateToProps, mapDispatchToProps),
   withPlugins('WindowSideBarInfoPanel'),
 );
 

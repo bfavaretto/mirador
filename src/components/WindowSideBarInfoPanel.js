@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import Typography from '@material-ui/core/Typography';
 import { SanitizedHtml } from './SanitizedHtml';
 import { LabelValueMetadata } from './LabelValueMetadata';
+import { LocalePicker } from './LocalePicker';
 import CompanionWindow from '../containers/CompanionWindow';
 import ns from '../config/css-ns';
 
@@ -27,10 +28,14 @@ export class WindowSideBarInfoPanel extends Component {
       id,
       classes,
       t,
+      locale,
+      availableLocales,
+      setLocale,
     } = this.props;
 
     return (
       <CompanionWindow title={t('aboutThisItem')} paperClassName={ns('window-sidebar-info-panel')} windowId={windowId} id={id}>
+        <LocalePicker locale={locale} setLocale={setLocale} availableLocales={availableLocales} />
         <div className={classes.section}>
           {canvasLabel && (
             <>
@@ -84,10 +89,13 @@ WindowSideBarInfoPanel.propTypes = {
   manifestLabel: PropTypes.string,
   manifestDescription: PropTypes.string,
   manifestMetadata: PropTypes.array, // eslint-disable-line react/forbid-prop-types
+  setLocale: PropTypes.func,
   t: PropTypes.func,
   windowId: PropTypes.string.isRequired,
   id: PropTypes.string.isRequired,
   classes: PropTypes.object, // eslint-disable-line react/forbid-prop-types
+  locale: PropTypes.string,
+  availableLocales: PropTypes.arrayOf(PropTypes.string),
 };
 
 WindowSideBarInfoPanel.defaultProps = {
@@ -99,4 +107,7 @@ WindowSideBarInfoPanel.defaultProps = {
   manifestMetadata: [],
   t: key => key,
   classes: {},
+  setLocale: undefined,
+  locale: '',
+  availableLocales: [],
 };

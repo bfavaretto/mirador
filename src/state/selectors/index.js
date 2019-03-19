@@ -2,6 +2,7 @@ import filter from 'lodash/filter';
 import flatten from 'lodash/flatten';
 import { LanguageMap } from 'manifesto.js';
 import Annotation from '../../lib/Annotation';
+import ManifestoResource from '../../lib/ManifestoResource';
 import ManifestoCanvas from '../../lib/ManifestoCanvas';
 import CanvasGroupings from '../../lib/CanvasGroupings';
 
@@ -270,9 +271,9 @@ export function getCanvasLabel(canvas, canvasIndex) {
 * @param {object} Manifesto IIIF Resource (e.g. canvas, manifest)
 * @return {Array[Object]}
 */
-export function getDestructuredMetadata(iiifResource) {
+export function getDestructuredMetadata(iiifResource, locale = undefined) {
   return (iiifResource
-    && iiifResource.getMetadata().map(labelValuePair => ({
+    && new ManifestoResource(iiifResource).getMetadata(locale).map(labelValuePair => ({
       label: labelValuePair.getLabel(),
       value: labelValuePair.getValue(),
     }))
@@ -363,4 +364,23 @@ export function getSelectedTargetAnnotationResources(state, targetIds, annotatio
       id: (annotation['@id'] || annotation.id),
       resources: annotation.resources.filter(r => annotationIds && annotationIds.includes(r.id)),
     }));
+}
+
+/**
+ * Return the default locale for the manifest
+ */
+export function getWindowLocale(state, windowId) {
+  const manifest = getWindowManifest(state, windowId);
+
+  return manifest && manifest.manifestation && manifest.manifestation.options.locale.replace(/-.*$/, '');
+}
+
+/**
+ * Return the locales present in the manifest
+ */
+export function getMetadataLocales(state, windowId) {
+  const manifest = getWindowManifest(state, windowId);
+  if (!manifest || !manifest.manifestation) return undefined;
+
+  return new ManifestoResource(manifest.manifestation).getLocales();
 }
