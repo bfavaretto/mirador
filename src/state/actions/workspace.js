@@ -6,7 +6,7 @@ import {
 } from 'lodash';
 import ActionTypes from './action-types';
 import { importConfig } from './config';
-import { closeWindow, addWindow, updateWindow } from './window';
+import { addWindow, removeWindow, updateWindow } from './window';
 import { updateViewport } from './canvas';
 import { fetchManifest } from './manifest';
 
@@ -136,6 +136,6 @@ export function importWorkspace(stateExport) {
 
     /* close surplus windows */
     difference(keys(getState().windows), exIds.concat(imIds))
-      .map(winId => dispatch(closeWindow(winId)));
+      .map(winId => dispatch(removeWindow(winId)));
   };
 }
