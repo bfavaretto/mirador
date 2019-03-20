@@ -108,6 +108,19 @@ describe('annotation actions', () => {
     });
   });
 
+  it('handles the setAnnotations action', () => {
+    const windowId = 'wId1';
+    const canvasId = 'cId1';
+    const annotationId = 'aId1';
+    const expectedAction = {
+      type: ActionTypes.SET_ANNOTATIONS,
+      windowId,
+      canvasId,
+      annotationId,
+    };
+    expect(actions.setAnnotations(windowId, canvasId, annotationId)).toEqual(expectedAction);
+  });
+
   it('handles the selectAnnotation action', () => {
     const windowId = 'wId1';
     const canvasId = 'cId1';

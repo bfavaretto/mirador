@@ -13,15 +13,40 @@ import ns from '../config/css-ns';
 */
 export class WindowSideBarAnnotationsPanel extends Component {
   /**
+   * constructor -
+   */
+  constructor(props) {
+    super(props);
+
+    this.handleClick = this.handleClick.bind(this);
+  }
+
+  /**
+   * Handle click event of an annotation.
+   * If the item is being selected, check modifying keys to determine if
+   * it should be the new selection or add to the existing selections
+   * If the item is already selected, remove it from the list
+  */
+  handleClick(event, annotation) {
+    const {
+      deselectAnnotation, selectAnnotation, selectedAnnotationIds, setAnnotations, windowId,
+    } = this.props;
+
+    if (selectedAnnotationIds.includes(annotation.id)) {
+      deselectAnnotation(windowId, annotation.targetId, annotation.id);
+    } else if (event.shiftKey || event.metaKey) {
+      selectAnnotation(windowId, annotation.targetId, annotation.id);
+    } else {
+      setAnnotations(windowId, annotation.targetId, annotation.id);
+    }
+  }
+
+  /**
    * Rreturn an array of sanitized annotation data
    */
   sanitizedAnnotations() {
     const {
       annotations,
-      classes,
-      deselectAnnotation,
-      windowId,
-      selectAnnotation,
       selectedAnnotationIds,
     } = this.props;
 
@@ -31,18 +56,8 @@ export class WindowSideBarAnnotationsPanel extends Component {
           annotations.map(annotation => (
             <ListItem
               key={annotation.id}
-              className={
-                selectedAnnotationIds.includes(annotation.id)
-                  ? classes.selectedAnnotation
-                  : null
-              }
-              onClick={() => {
-                if (selectedAnnotationIds.includes(annotation.id)) {
-                  deselectAnnotation(windowId, annotation.targetId, annotation.id);
-                } else {
-                  selectAnnotation(windowId, annotation.targetId, annotation.id);
-                }
-              }}
+              selected={selectedAnnotationIds.includes(annotation.id)}
+              onClick={e => this.handleClick(e, annotation)}
             >
               <Typography variant="body2">
                 <SanitizedHtml ruleSet="iiif" htmlString={annotation.content} />
@@ -82,6 +97,7 @@ WindowSideBarAnnotationsPanel.propTypes = {
   deselectAnnotation: PropTypes.func.isRequired,
   selectAnnotation: PropTypes.func.isRequired,
   selectedAnnotationIds: PropTypes.arrayOf(PropTypes.string),
+  setAnnotations: PropTypes.func.isRequired,
   t: PropTypes.func,
   windowId: PropTypes.string.isRequired,
   id: PropTypes.string.isRequired,

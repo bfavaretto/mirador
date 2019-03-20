@@ -295,6 +295,20 @@ describe('windows reducer', () => {
     });
   });
 
+  describe('SET_ANNOTATIONS', () => {
+    it('replaces the annotations list for the given canvas by the given annotation', () => {
+      const beforeState = { abc123: { selectedAnnotations: { cId: ['prevId1', 'prevId2'] } } };
+      const action = {
+        type: ActionTypes.SET_ANNOTATIONS, windowId: 'abc123', canvasId: 'cId', annotationId: 'aId',
+      };
+      const expectedState = {
+        abc123: { selectedAnnotations: { cId: ['aId'] } },
+      };
+
+      expect(windowsReducer(beforeState, action)).toEqual(expectedState);
+    });
+  });
+
   describe('SELECT_ANNOTATION', () => {
     it('handles when no selectedAnnotations exist', () => {
       const beforeState = { abc123: {} };

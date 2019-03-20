@@ -40,14 +40,12 @@ const mapStateToProps = (state, { windowId }) => ({
  */
 const mapDispatchToProps = {
   selectAnnotation: actions.selectAnnotation,
+  setAnnotations: actions.setAnnotations,
   deselectAnnotation: actions.deselectAnnotation,
 };
 
 /** */
 const styles = theme => ({
-  selectedAnnotation: {
-    backgroundColor: theme.palette.background.default,
-  },
   section: {
     borderBottom: '.5px solid rgba(0,0,0,0.25)',
     paddingBottom: theme.spacing.unit,

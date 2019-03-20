@@ -67,6 +67,20 @@ export function fetchAnnotation(canvasId, annotationId) {
 }
 
 /**
+ * setAnnotations - action creator
+ *
+ * @param  {String} windowId
+ * @param  {String} canvasId
+ * @param  {String} annotationId
+ * @memberof ActionCreators
+ */
+export function setAnnotations(windowId, canvasId, annotationId) {
+  return {
+    type: ActionTypes.SET_ANNOTATIONS, windowId, canvasId, annotationId,
+  };
+}
+
+/**
  * selectAnnotation - action creator
  *
  * @param  {String} windowId
