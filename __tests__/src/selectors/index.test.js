@@ -1,66 +1,10 @@
 import {
-  getAllOrSelectedAnnotations,
+  getAllOrSelectedAnnotationsOnCanvases,
   getAnnotationResourcesByMotivation,
-  getIdAndContentOfResources,
   getLanguagesFromConfigWithCurrent,
   getSelectedAnnotationIds,
-  getSelectedTargetAnnotations,
-  getSelectedTargetsAnnotations,
-  getSelectedTargetAnnotationResources,
 } from '../../../src/state/selectors';
 import Annotation from '../../../src/lib/Annotation';
-import AnnotationResource from '../../../src/lib/AnnotationResource';
-
-describe('getSelectedTargetAnnotations', () => {
-  it('returns annotations for the given canvasId that have resources', () => {
-    const state = {
-      annotations: {
-        abc123: {
-          annoId1: { '@id': 'annoId1', json: { resources: ['aResource'] } },
-          annoId2: { '@id': 'annoId2' },
-          annoId3: { '@id': 'annoId3', json: { resources: [] } },
-        },
-      },
-    };
-
-    expect(getSelectedTargetAnnotations(state, 'abc123').length).toEqual(1);
-  });
-
-  it('returns an empty array if there are no annotations', () => {
-    const state = { annotations: { xyz321: {} } };
-    const expected = [];
-
-    expect(getSelectedTargetAnnotations({}, 'abc123')).toEqual(expected);
-    expect(getSelectedTargetAnnotations(state, 'abc123')).toEqual(expected);
-  });
-});
-
-describe('getSelectedTargetsAnnotations', () => {
-  it('returns annotations for multiple canvasIds', () => {
-    const state = {
-      annotations: {
-        abc123: {
-          annoId1: { '@id': 'annoId1', json: { resources: ['aResource'] } },
-          annoId2: { '@id': 'annoId2' },
-          annoId3: { '@id': 'annoId3', json: { resources: [] } },
-        },
-        def456: {
-          annoId4: { '@id': 'annoId4', json: { resources: ['helloWorld'] } },
-        },
-      },
-    };
-
-    expect(getSelectedTargetsAnnotations(state, ['abc123', 'def456']).length).toEqual(2);
-  });
-
-  it('returns an empty array if there are no annotations', () => {
-    const state = { annotations: { xyz321: {} } };
-    const expected = [];
-
-    expect(getSelectedTargetsAnnotations({}, ['abc123'])).toEqual(expected);
-    expect(getSelectedTargetsAnnotations(state, ['abc123'])).toEqual(expected);
-  });
-});
 
 describe('getAnnotationResourcesByMotivation', () => {
   const annotations = [
@@ -78,40 +22,6 @@ describe('getAnnotationResourcesByMotivation', () => {
     expect(
       getAnnotationResourcesByMotivation(annotations, ['something', 'oa:commenting']).map(r => r.motivations),
     ).toEqual(expected);
-  });
-});
-
-describe('getIdAndContentOfResources', () => {
-  it('returns an array if id/content objects from the annotation resources', () => {
-    const annotations = [
-      new AnnotationResource({ '@id': 'theId', on: 'example.com', resource: { chars: 'The Content' } }),
-    ];
-    const expected = [
-      { id: 'theId', targetId: 'example.com', content: 'The Content' },
-    ];
-
-    expect(getIdAndContentOfResources(annotations)).toEqual(expected);
-  });
-
-  it('provides an ID as a UUID if the annotation does not have one', () => {
-    const annotations = [
-      new AnnotationResource({ resource: { chars: 'The Content' } }),
-    ];
-
-    expect(getIdAndContentOfResources(annotations)[0].id).toEqual(
-      expect.stringMatching(/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/),
-    );
-  });
-
-  it('handles resource arrays', () => {
-    const annotations = [
-      new AnnotationResource({ '@id': 'theId', on: 'example.com', resource: [{ chars: 'The' }, { chars: 'Content' }] }),
-    ];
-    const expected = [
-      { id: 'theId', targetId: 'example.com', content: 'The Content' },
-    ];
-
-    expect(getIdAndContentOfResources(annotations)).toEqual(expected);
   });
 });
 
@@ -142,33 +52,15 @@ it('getSelectedAnnotationIds returns an array of selected annotation IDs from st
     },
   };
 
-  expect(getSelectedAnnotationIds(state, 'wid', ['tid2'])).toEqual(
+  expect(getSelectedAnnotationIds(state, { windowId: 'wid', targetIds: ['tid2'] })).toEqual(
     ['aid3'],
   );
-  expect(getSelectedAnnotationIds(state, 'wid', ['tid1', 'tid2'])).toEqual(
+  expect(getSelectedAnnotationIds(state, { windowId: 'wid', targetIds: ['tid1', 'tid2'] })).toEqual(
     ['aid1', 'aid2', 'aid3'],
   );
 });
 
-it('getSelectedTargetAnnotationResources filters the annotation resources by the annotationIds passed in', () => {
-  const state = {
-    annotations: {
-      cid1: {
-        annoId1: { id: 'annoId1', json: { resources: [{ '@id': 'annoId1' }, { '@id': 'annoId2' }] } },
-      },
-    },
-  };
-
-  expect(
-    getSelectedTargetAnnotationResources(state, ['cid1'], ['annoId1'])[0].resources.length,
-  ).toBe(1);
-
-  expect(
-    getSelectedTargetAnnotationResources(state, ['cid1'], ['annoId1', 'annoId2'])[0].resources.length,
-  ).toBe(2);
-});
-
-describe('getAllOrSelectedAnnotations', () => {
+describe('getAllOrSelectedAnnotationsOnCanvases', () => {
   it('returns all annotations if the given window is set to display all', () => {
     const state = {
       windows: {
@@ -182,7 +74,7 @@ describe('getAllOrSelectedAnnotations', () => {
     };
 
     expect(
-      getAllOrSelectedAnnotations(state, 'abc123', ['cid1'], ['annoId1'])[0].resources.length,
+      getAllOrSelectedAnnotationsOnCanvases(state, { windowId: 'abc123', targetIds: ['cid1'] })[0].resources.length,
     ).toBe(2);
   });
 
@@ -199,7 +91,24 @@ describe('getAllOrSelectedAnnotations', () => {
     };
 
     expect(
-      getAllOrSelectedAnnotations(state, 'abc123', ['cid1'], ['annoId1'])[0].resources.length,
+      getAllOrSelectedAnnotationsOnCanvases(state, { windowId: 'abc123', targetIds: ['cid1'] })[0].resources.length,
+    ).toBe(1);
+  });
+
+  it('filters the annotation resources by the selected annotations for the window', () => {
+    const state = {
+      annotations: {
+        windows: {
+          abc123: { selectedAnnotations: { cid1: ['annoId2'] } },
+        },
+        cid1: {
+          annoId1: { id: 'annoId1', json: { resources: [{ '@id': 'annoId2' }, { '@id': 'annoId3' }] } },
+        },
+      },
+    };
+
+    expect(
+      getAllOrSelectedAnnotationsOnCanvases(state, { windowId: 'abc123', targetIds: ['cid1'] })[0].resources.length,
     ).toBe(1);
   });
 });

@@ -8,9 +8,8 @@ import { OpenSeadragonViewer } from '../components/OpenSeadragonViewer';
 import * as actions from '../state/actions';
 import CanvasWorld from '../lib/CanvasWorld';
 import {
-  getAllOrSelectedAnnotations,
+  getAllOrSelectedAnnotationsOnCanvases,
   getCanvasLabel,
-  getSelectedAnnotationIds,
   getSelectedCanvases,
 } from '../state/selectors';
 
@@ -23,12 +22,7 @@ const mapStateToProps = (state, { windowId }) => ({
   canvasWorld: new CanvasWorld(getSelectedCanvases(state, { windowId })),
   viewer: state.viewers[windowId],
   label: getCanvasLabel(state, { windowId, canvasIndex: 'selected' }),
-  annotations: getAllOrSelectedAnnotations(
-    state,
-    windowId,
-    getSelectedCanvases(state, { windowId })
-    getSelectedAnnotationIds(state, windowId, getSelectedCanvases(state, { windowId })),
-  ),
+  annotations: getAllOrSelectedAnnotationsOnCanvases(state, { windowId }),
 });
 
 /**
