@@ -64,7 +64,7 @@ export class OpenSeadragonViewer extends Component {
    */
   componentDidUpdate(prevProps) {
     const {
-      tileSources, viewer, annotations, currentCanvases,
+      tileSources, viewer, annotations,
     } = this.props;
     if (!this.annotationsMatch(prevProps.annotations)) {
       this.updateCanvas = () => {
@@ -131,11 +131,11 @@ export class OpenSeadragonViewer extends Component {
    * annotationsToContext - converts anontations to a canvas context
    */
   annotationsToContext(annotations) {
-    const { currentCanvases } = this.props;
+    const { canvasWorld } = this.props;
     const context = this.osdCanvasOverlay.context2d;
     annotations.forEach((annotation) => {
       annotation.resources.forEach((resource) => {
-        const offset = new CanvasWorld(currentCanvases).offsetByCanvas(resource.targetId);
+        const offset = canvasWorld.offsetByCanvas(resource.targetId);
         const fragment = resource.fragmentSelector;
         fragment[0] += offset.x;
         context.strokeStyle = 'yellow';
@@ -148,7 +148,7 @@ export class OpenSeadragonViewer extends Component {
   /**
    */
   addTileSource(tileSource, i = 0) {
-    const { currentCanvases } = this.props;
+    const { canvasWorld } = this.props;
     return new Promise((resolve, reject) => {
       if (!this.viewer) {
         return;
@@ -156,7 +156,7 @@ export class OpenSeadragonViewer extends Component {
       this.viewer.addTiledImage({
         tileSource,
         fitBounds: new OpenSeadragon.Rect(
-          ...new CanvasWorld(currentCanvases).canvasToWorldCoordinates(i),
+          ...canvasWorld.canvasToWorldCoordinates(i),
         ),
         success: event => resolve(event),
         error: event => reject(event),
@@ -196,8 +196,8 @@ export class OpenSeadragonViewer extends Component {
    * zoomToWorld - zooms the viewer to the extent of the canvas world
    */
   zoomToWorld(immediately = true) {
-    const { currentCanvases } = this.props;
-    this.fitBounds(...new CanvasWorld(currentCanvases).worldBounds(), immediately);
+    const { canvasWorld } = this.props;
+    this.fitBounds(...canvasWorld.worldBounds(), immediately);
   }
 
   /**
@@ -260,7 +260,6 @@ export class OpenSeadragonViewer extends Component {
 OpenSeadragonViewer.defaultProps = {
   annotations: [],
   children: null,
-  currentCanvases: [],
   tileSources: [],
   viewer: null,
   label: null,
@@ -270,7 +269,7 @@ OpenSeadragonViewer.defaultProps = {
 OpenSeadragonViewer.propTypes = {
   annotations: PropTypes.arrayOf(PropTypes.object),
   children: PropTypes.element,
-  currentCanvases: PropTypes.arrayOf(PropTypes.object),
+  canvasWorld: PropTypes.instanceOf(CanvasWorld).isRequired,
   tileSources: PropTypes.arrayOf(PropTypes.object),
   viewer: PropTypes.object, // eslint-disable-line react/forbid-prop-types
   updateViewport: PropTypes.func.isRequired,

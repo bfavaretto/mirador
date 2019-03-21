@@ -6,10 +6,12 @@ import { fade } from '@material-ui/core/styles/colorManipulator';
 import { withPlugins } from '../extend';
 import { OpenSeadragonViewer } from '../components/OpenSeadragonViewer';
 import * as actions from '../state/actions';
+import CanvasWorld from '../lib/CanvasWorld';
 import {
   getAllOrSelectedAnnotations,
   getCanvasLabel,
   getSelectedAnnotationIds,
+  getSelectedCanvases,
 } from '../state/selectors';
 
 /**
@@ -17,16 +19,15 @@ import {
  * @memberof Window
  * @private
  */
-const mapStateToProps = ({
-  viewers, windows, manifests, annotations,
-}, { windowId, currentCanvases }) => ({
-  viewer: viewers[windowId],
-  label: getCanvasLabel({ windows, manifests }, { windowId, canvasIndex: 'selected' }),
+const mapStateToProps = (state, { windowId }) => ({
+  canvasWorld: new CanvasWorld(getSelectedCanvases(state, { windowId })),
+  viewer: state.viewers[windowId],
+  label: getCanvasLabel(state, { windowId, canvasIndex: 'selected' }),
   annotations: getAllOrSelectedAnnotations(
-    { annotations, windows },
+    state,
     windowId,
-    currentCanvases.map(c => c.id),
-    getSelectedAnnotationIds({ windows }, windowId, currentCanvases.map(c => c.id)),
+    getSelectedCanvases(state, { windowId }),
+    getSelectedAnnotationIds(state, windowId, getSelectedCanvases(state, { windowId })),
   ),
 });
 
